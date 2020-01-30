@@ -38,7 +38,7 @@ const App = (props) => {
     const maxVoteElement = votes.indexOf(maxVote)
     return {story: anecdotes[maxVoteElement], vote: maxVote}
   }
-  console.log(searchAnecdoteWithMostVotes(props.anecdotes))
+
   return (
     <div>
       <h1>Anecdote of the day</h1>
