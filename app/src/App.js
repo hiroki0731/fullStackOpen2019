@@ -1,82 +1,84 @@
 import React, {useState, useEffect} from 'react'
-import Filter from './components/Filter'
-import PersonForm from './components/PersonForm'
-import Persons from './components/Persons'
 import axios from 'axios'
 
-const App = () => {
-  const [persons, setPersons] = useState([])
-  const [newName, setNewName] = useState('')
-  const [newNumber, setNewNumber] = useState('')
-  const [newFilter, setNewFilter] = useState('')
-
-  useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => setPersons(response.data))
-  },[])
-
-  const handleSubmit = (event) => {
-    event.preventDefault()
-
-    const isDouble = persons.some(person => person.name === newName)
-
-    if (isDouble) {
-      alert(`${newName} is already added to phonebook`)
-    } else {
-      const newPersonObject = {
-        name: newName,
-        number: newNumber
-      }
-      setPersons(persons.concat(newPersonObject))
-    }
-  }
-
-  const handleFilterChange = (event) => {
-    setNewFilter(event.target.value)
-  }
-  const handleNameChange = (event) => {
-    setNewName(event.target.value)
-  }
-
-  const handleNumberChange = (event) => {
-    setNewNumber(event.target.value)
-  }
-
-  const showPersons = () => {
-    let personsToShow = persons
-
-    if (newFilter !== '') {
-      personsToShow = persons.filter((person) => {
-        return person.name.includes(newFilter)
-      })
-    }
-
-    return personsToShow.map((person) => {
-      return <Persons key={person.number} person={person}/>
-    })
+const Country = ({country}) => {
+  const showLanguages = (languages) => {
+    return (
+      languages.map(language => <li key={language.iso639_1}>{language.name}</li>)
+    )
   }
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <h2>Phonebook</h2>
-        <div>
-          <Filter newFilter={newFilter} handleFilterChange={handleFilterChange}/>
-        </div>
-        <h2>add a new</h2>
-        <PersonForm
-          newName={newName}
-          newNumber={newNumber}
-          handleNameChange={handleNameChange}
-          handleNumberChange={handleNumberChange}
-        />
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      {showPersons()}
+      <h2>{country.name}</h2>
+      <p>capital: {country.capital}</p>
+      <p>population: {country.population}</p>
+      <h2>languages</h2>
+      <ul>
+        {showLanguages(country.languages)}
+      </ul>
+      <img src={country.flag} />
+    </div>
+  )
+}
+
+const Countries = ({country}) => {
+  console.log('aaa')
+  const handleShow = () => {
+    return <Country country={country} />
+  }
+
+  return (
+    <div>
+      <p>{country.name}</p>
+      <button onClick={handleShow}>show</button>
+    </div>
+  )
+}
+
+
+const App = () => {
+  const [countries, setCountries] = useState([])
+  const [filter, setFilter] = useState('')
+
+  useEffect(() => {
+    axios
+      .get('https://restcountries.eu/rest/v2/all')
+      .then((response) => {
+        setCountries(response.data)
+      })
+  }, [])
+
+  const filterCountries = (event) => {
+    setFilter(event.target.value)
+  }
+
+  const showCountries = () => {
+    const newCountries = countries.filter((country) => {
+      return country.name.includes(filter)
+    })
+
+    if (newCountries.length > 10) {
+      return <p>Too many matches, specify another filter</p>
+    } else if (newCountries.length === 1) {
+      console.log('filtered country:', newCountries[0])
+
+      return <Country country={newCountries[0]}/>
+    } else {
+      return newCountries.map((country) => {
+        return <Countries key={country.name} country={country} />
+      })
+    }
+  }
+
+  return (
+    <div>
+      <div>
+        find countries <input value={filter} onChange={filterCountries}/>
+      </div>
+      <div>
+        {showCountries()}
+      </div>
     </div>
   )
 }
