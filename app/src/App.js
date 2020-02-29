@@ -22,10 +22,9 @@ const Country = ({country}) => {
   )
 }
 
-const Countries = ({country}) => {
-  console.log('aaa')
+const Countries = ({country, setFilter}) => {
   const handleShow = () => {
-    return <Country country={country} />
+    setFilter(country.name);
   }
 
   return (
@@ -66,7 +65,7 @@ const App = () => {
       return <Country country={newCountries[0]}/>
     } else {
       return newCountries.map((country) => {
-        return <Countries key={country.name} country={country} />
+        return <Countries key={country.name} country={country} setFilter={setFilter}/>
       })
     }
   }
