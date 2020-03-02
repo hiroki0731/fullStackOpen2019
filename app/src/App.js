@@ -51,8 +51,16 @@ const App = () => {
               persons.map(person => person.id === modifiedPerson.id ? modifiedPerson : person)
             )
             setSuccessMessage('update completed');
+            setTimeout(() => {
+              setSuccessMessage(null);
+            }, 5000)
           })
-          .catch(error => setErrorMessage(`Information of ${modifyPerson.name} has already been removed from server`))
+          .catch(() => {
+            setErrorMessage(`Information of ${modifyPerson.name} has already been removed from server`)
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000)
+          })
       }
     } else {
       // create処理
@@ -63,7 +71,11 @@ const App = () => {
       personService
         .create(newPersonObject)
         .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+
       setSuccessMessage('create completed');
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000)
     }
   }
 
