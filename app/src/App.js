@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import SuccessNotification from './components/SuccessNotification'
+import ErrorNotification from './components/ErrorNotification'
 import personService from './services/persons'
 
 
@@ -10,6 +12,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     personService.getAll()
@@ -34,25 +38,23 @@ const App = () => {
 
     // 重複バリデーション
     if (isAlreadyAddedName && isAlreadyAddedNumber) {
-      alert(`${newName} is already added to phonebook`)
+      setErrorMessage(`${newName} is already added to phonebook`)
     } else if (isAlreadyAddedNumber) {
-      alert(`${newNumber} is already used number in phonebook`)
+      setErrorMessage(`${newNumber} is already used number in phonebook`)
     } else if (isAlreadyAddedName) {
-      console.log(modifyPerson)
       // update処理
-      if(window.confirm(`${modifyPerson.name} is already added to phonebook, replace old number with a new one?`)) {
+      if (window.confirm(`${modifyPerson.name} is already added to phonebook, replace old number with a new one?`)) {
         personService
           .update(modifyPerson.id, modifyPerson)
           .then(modifiedPerson => {
-            console.log(modifiedPerson)
             setPersons(
               persons.map(person => person.id === modifiedPerson.id ? modifiedPerson : person)
             )
+            setSuccessMessage('update completed');
           })
+          .catch(error => setErrorMessage(`Information of ${modifyPerson.name} has already been removed from server`))
       }
     } else {
-      console.log('create')
-
       // create処理
       const newPersonObject = {
         name: newName,
@@ -61,6 +63,7 @@ const App = () => {
       personService
         .create(newPersonObject)
         .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+      setSuccessMessage('create completed');
     }
   }
 
@@ -101,6 +104,8 @@ const App = () => {
     <div>
       <form onSubmit={handleSubmit}>
         <h2>Phonebook</h2>
+        <SuccessNotification message={successMessage} />
+        <ErrorNotification message={errorMessage} />
         <div>
           <Filter newFilter={newFilter} handleFilterChange={handleFilterChange}/>
         </div>
